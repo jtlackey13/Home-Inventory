@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b4f">
+  <meta name="description" content="Your private household storage inventory">
+  <title>Home Inventory</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+<header class="header"><div class="header-inner"><div><h1>⌂ Home Inventory</h1><p>Find anything. Know exactly where it lives.</p></div><div class="account"><span id="accountEmail"></span><button id="signOut" class="ghost" type="button" hidden>Sign out</button></div></div></header>
+<main>
+  <p id="message" role="status" aria-live="polite" hidden></p>
+  <section class="panel" id="setupPanel" hidden>
+    <h2>Connect the database</h2>
+    <p>This website needs a Supabase project. Open <code>config.js</code>, enter the project URL and <strong>publishable key</strong>, then publish your changes. The downloadable setup guide walks through every click.</p>
+    <p><strong>Never enter a secret key or service_role key in this website's files.</strong></p>
+  </section>
+  <section class="panel auth-panel" id="authPanel" hidden>
+    <h2>Sign in to your inventory</h2>
+    <p>Your rooms, containers, and items are private to your account and stored securely online.</p>
+    <form id="authForm">
+      <label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="6" required>
+      <div class="row"><button id="signIn" type="submit">Sign in</button><button type="button" class="secondary" id="signUp">Create account</button><button type="button" class="linkish" id="forgotPassword">Forgot password?</button></div>
+    </form>
+    <p class="muted small">If you've just created an account, check your email for a confirmation link before signing in.</p>
+  </section>
+  <section class="panel auth-panel" id="recoveryPanel" hidden>
+    <h2>Choose a new password</h2><form id="recoveryForm"><label for="newPassword">New password</label><input id="newPassword" type="password" minlength="6" autocomplete="new-password" required><button type="submit">Update password</button></form>
+  </section>
+  <div id="appPanel" hidden>
+    <nav class="tabs" role="tablist" aria-label="Main navigation">
+      <button type="button" data-tab="home" role="tab">⌕ Home</button>
+      <button type="button" data-tab="add" role="tab">＋ Add</button>
+      <button type="button" data-tab="inventory" role="tab">▤ Inventory</button>
+      <button type="button" data-tab="backup" role="tab">↧ Backup &amp; Restore</button>
+    </nav>
+    <section data-page="home">
+      <section class="panel"><h2>Search your home</h2><label for="search">Search items, rooms, containers and locations</label><input id="search" type="search" placeholder="Try ‘extension cord’, ‘G-001’, or ‘garage’" autocomplete="off"><div id="results" aria-live="polite"></div></section>
+      <section class="stats"><div class="stat"><strong id="roomCount">0</strong>Rooms</div><div class="stat"><strong id="boxCount">0</strong>Containers</div><div class="stat"><strong id="itemCount">0</strong>Item entries</div></section>
+      <p class="muted">Choose <strong>Add</strong> to enter inventory, or <strong>Inventory</strong> to browse rooms, containers, and their contents.</p>
+    </section>
+    <section data-page="add" hidden>
+      <h2>Add to your inventory</h2>
+      <div class="cols">
+        <section class="panel"><h3>1. Add a room</h3><form id="roomForm"><label for="roomName">Room name</label><input id="roomName" maxlength="100" placeholder="Garage" required><button type="submit" id="addRoom">Add room</button></form></section>
+        <section class="panel"><h3>2. Add a container</h3><form id="boxForm"><label for="boxCode">Container ID</label><input id="boxCode" maxlength="60" placeholder="G-001" required><label for="boxName">Container name</label><input id="boxName" maxlength="120" placeholder="Holiday decorations" required><label for="boxRoom">Room</label><select id="boxRoom" required></select><label for="boxLocation">Location within room (optional)</label><input id="boxLocation" maxlength="180" placeholder="Left shelf, level 2"><button type="submit" id="addBox">Add container</button></form></section>
+        <section class="panel"><h3>3. Add an item</h3><form id="itemForm"><label for="itemName">Item name</label><input id="itemName" maxlength="160" placeholder="Outdoor extension cord" required><label for="itemQty">Quantity</label><input id="itemQty" type="number" min="1" max="999999" value="1" required><label for="itemBox">Container</label><select id="itemBox" required></select><label for="itemNotes">Notes or search tags (optional)</label><input id="itemNotes" maxlength="500" placeholder="25 ft, orange"><button type="submit" id="addItem">Add item</button></form></section>
+      </div>
+    </section>
+    <section data-page="inventory" hidden><section class="panel"><div class="row spaced"><h2>All inventory</h2><button id="refresh" class="secondary" type="button">Refresh from cloud</button></div><p>Expand a room, then a container, to see its contents. Items are organized alphabetically; containers are ordered by ID.</p><div id="inventoryTree"></div></section></section>
+    <section data-page="backup" hidden>
+      <section class="panel"><h2>Backup &amp; Restore</h2><p>Download a portable JSON backup at any time. It uses the same room/container/item format as your previous prototype.</p><button id="export" type="button">Download inventory backup</button><hr><h3>Restore a backup</h3><p><strong>Important:</strong> Restoring a file <strong>replaces</strong> your entire current cloud inventory. If a restore encounters an error, the database rolls back that restore so your previous inventory remains in place.</p>
+        <label for="import">Select JSON backup file</label><input type="file" accept=".json,application/json" id="import"><p id="importSummary" class="muted small"></p><label class="check"><input type="checkbox" id="confirmRestore"> I understand this will replace all current cloud inventory.</label><button type="button" class="danger" id="restore" disabled>Replace inventory from backup</button>
+      </section>
+    </section>
+  </div>
+</main>
+<footer>Home Inventory · Private data stored in your Supabase account · <span id="connectionState">Connecting...</span></footer>
+</body>
+</html>
